@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EncoreOps Simulator</title>
+    <style>
+      :root {
+        --bg-1: #060816;
+        --bg-2: #0f172a;
+        --panel: rgba(11, 18, 32, 0.82);
+        --panel-strong: rgba(15, 23, 42, 0.95);
+        --panel-soft: rgba(30, 41, 59, 0.8);
+        --text: #e5eefc;
+        --muted: #94a3b8;
+        --border: rgba(148, 163, 184, 0.18);
+        --accent: #7c3aed;
+        --accent-2: #06b6d4;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --shadow: 0 18px 45px rgba(2, 6, 23, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        color-scheme: dark;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(124, 58, 237, 0.2), transparent 0, transparent 35%),
+          radial-gradient(circle at top right, rgba(6, 182, 212, 0.16), transparent 0, transparent 30%),
+          linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 48%, #111827 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: auto;
+        width: 320px;
+        height: 320px;
+        border-radius: 999px;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      body::before {
+        top: -120px;
+        right: -60px;
+        background: rgba(124, 58, 237, 0.24);
+      }
+
+      body::after {
+        bottom: -100px;
+        left: -80px;
+        background: rgba(6, 182, 212, 0.18);
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-badge {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(6, 182, 212, 0.9));
+        box-shadow: 0 12px 28px rgba(124, 58, 237, 0.28);
+        font-size: 22px;
+      }
+
+      .eyebrow {
+        margin-bottom: 4px;
+        color: #93c5fd;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .tiny {
+        font-size: 12px;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .live-pill,
+      .mini-pill,
+      .state-pill,
+      .delivery-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 7px 12px;
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.68);
+        font-size: 12px;
+      }
+
+      .live-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #34d399;
+        box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.14);
+        animation: pulse 1.8s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.9; }
+        70% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.9; }
+      }
+
+      .panel {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(11, 18, 32, 0.92));
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.6fr 0.95fr;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .hero-panel {
+        overflow: hidden;
+      }
+
+      .hero-panel h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 1.05;
+      }
+
+      .hero-copy {
+        max-width: 720px;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .hero-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .mini-pill {
+        background: rgba(124, 58, 237, 0.12);
+      }
+
+      .signal-card {
+        display: grid;
+        gap: 12px;
+      }
+
+      .signal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .signal-tile {
+        border-radius: 16px;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px solid var(--border);
+      }
+
+      .signal-tile strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 18px;
+      }
+
+      .api-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .api-item {
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(8, 15, 30, 0.9);
+        border: 1px solid var(--border);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .metric-card {
+        border-radius: 18px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.9));
+        min-height: 112px;
+      }
+
+      .metric-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .metric-icon {
+        font-size: 18px;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        margin: 14px 0 6px;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .metric-note {
+        color: #bfdbfe;
+        font-size: 12px;
+      }
+
+      .form-panel {
+        margin-bottom: 18px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .control-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(8, 15, 30, 0.92);
+        color: var(--text);
+        padding: 11px 12px;
+        font: inherit;
+      }
+
+      input:focus,
+      select:focus,
+      button:focus-visible {
+        outline: 2px solid rgba(96, 165, 250, 0.7);
+        outline-offset: 2px;
+      }
+
+      button {
+        cursor: pointer;
+        border: none;
+        background: linear-gradient(135deg, var(--accent), #2563eb);
+        box-shadow: 0 12px 22px rgba(37, 99, 235, 0.24);
+        font-weight: 700;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
+      }
+
+      button.secondary {
+        background: linear-gradient(135deg, #334155, #475569);
+        box-shadow: none;
+      }
+
+      button.warn {
+        background: linear-gradient(135deg, #d97706, #f59e0b);
+        box-shadow: none;
+      }
+
+      button.danger {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        box-shadow: none;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1.7fr 0.95fr;
+        gap: 16px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .filter-box {
+        min-width: 160px;
+      }
+
+      .order-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .order-card {
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.76), rgba(8, 15, 30, 0.92));
+        padding: 16px;
+      }
+
+      .order-head,
+      .order-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .order-title {
+        margin-bottom: 4px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .order-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .state-pill {
+        font-weight: 700;
+      }
+
+      .state-created,
+      .state-payment_confirmed,
+      .state-fulfillment_in_progress {
+        background: rgba(37, 99, 235, 0.14);
+        color: #bfdbfe;
+      }
+
+      .state-shipped,
+      .state-replacement_requested {
+        background: rgba(245, 158, 11, 0.14);
+        color: #fde68a;
+      }
+
+      .state-digital_delivered,
+      .state-delivered,
+      .state-replacement_fulfilled,
+      .state-refunded {
+        background: rgba(34, 197, 94, 0.14);
+        color: #bbf7d0;
+      }
+
+      .state-refund_requested {
+        background: rgba(239, 68, 68, 0.14);
+        color: #fecaca;
+      }
+
+      .delivery-pill {
+        color: #cbd5e1;
+      }
+
+      .order-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 14px 0;
+      }
+
+      .subcard {
+        min-height: 100%;
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.84);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .section-label {
+        margin-bottom: 8px;
+        color: #cbd5e1;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .action-list {
+        margin: 0;
+        padding-left: 18px;
+        color: #dbeafe;
+      }
+
+      .action-list li + li {
+        margin-top: 6px;
+      }
+
+      .timeline-note {
+        color: #dbeafe;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .actions button {
+        width: auto;
+        padding: 8px 11px;
+        font-size: 12px;
+      }
+
+      .alert-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .alert-card {
+        border-radius: 16px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        background: rgba(8, 15, 30, 0.9);
+      }
+
+      .alert-critical {
+        border-color: rgba(239, 68, 68, 0.65);
+        background: linear-gradient(180deg, rgba(127, 29, 29, 0.26), rgba(8, 15, 30, 0.92));
+      }
+
+      .alert-warning {
+        border-color: rgba(245, 158, 11, 0.62);
+        background: linear-gradient(180deg, rgba(120, 53, 15, 0.24), rgba(8, 15, 30, 0.92));
+      }
+
+      .alert-info {
+        border-color: rgba(96, 165, 250, 0.62);
+        background: linear-gradient(180deg, rgba(30, 64, 175, 0.22), rgba(8, 15, 30, 0.92));
+      }
+
+      .empty-state {
+        padding: 18px;
+        border-radius: 14px;
+        border: 1px dashed rgba(148, 163, 184, 0.26);
+        background: rgba(8, 15, 30, 0.5);
+        color: var(--muted);
+      }
+
+      .observability-list {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .observability-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(8, 15, 30, 0.82);
+        border: 1px solid var(--border);
+      }
+
+      code {
+        color: #93c5fd;
+        word-break: break-all;
+      }
+
+      .endpoint-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .endpoint-list code {
+        display: block;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(8, 15, 30, 0.82);
+      }
+
+      @media (max-width: 1100px) {
+        .hero-grid,
+        .dashboard-grid,
+        .order-body {
+          grid-template-columns: 1fr;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .control-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .container {
+          padding: 16px;
+        }
+
+        .topbar,
+        .panel-header,
+        .order-head,
+        .order-footer {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .metrics,
+        .control-grid,
+        .signal-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand-mark">
+          <div class="brand-badge">🎟️</div>
+          <div>
+            <div class="eyebrow">Marketplace Operations Simulator</div>
+            <h2>EncoreOps command center</h2>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="live-pill"><span class="live-dot"></span>Live workflow telemetry</span>
+          <button id="refresh-btn" class="secondary" type="button">Refresh now</button>
+        </div>
+      </header>
+
+      <section class="hero-grid">
+        <div class="panel hero-panel">
+          <div class="eyebrow">StubHub-style bottom-of-funnel operations</div>
+          <h1>Beautiful, fast, resilient order ops visibility.</h1>
+          <p class="hero-copy muted">
+            Track payment confirmation, delivery, refunds, replacements, dead-letter retries, and customer-impacting alerts
+            in one polished command center.
+          </p>
+          <div class="hero-chips">
+            <span class="mini-pill">State machine driven</span>
+            <span class="mini-pill">Idempotent APIs</span>
+            <span class="mini-pill">Background workers</span>
+            <span class="mini-pill">Prometheus-ready metrics</span>
+          </div>
+        </div>
+
+        <aside class="panel signal-card">
+          <div>
+            <div class="eyebrow">Ops heartbeat</div>
+            <h3>System snapshot</h3>
+          </div>
+          <div class="signal-grid" id="signal-grid">
+            <div class="signal-tile">
+              <span class="muted tiny">Refresh status</span>
+              <strong>Loading…</strong>
+            </div>
+            <div class="signal-tile">
+              <span class="muted tiny">Last sync</span>
+              <strong>—</strong>
+            </div>
+          </div>
+          <div class="api-list">
+            <div class="api-item"><span class="muted tiny">Health</span><br /><code>GET /api/health</code></div>
+            <div class="api-item"><span class="muted tiny">Alerts</span><br /><code>GET /api/ops/alerts</code></div>
+            <div class="api-item"><span class="muted tiny">Prometheus</span><br /><code>GET /api/metrics/prometheus</code></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="metrics" id="metrics"></section>
+
+      <section class="panel form-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Create a simulated order</h2>
+            <p class="muted">Generate new ops traffic instantly to demo lifecycle handling at scale.</p>
+          </div>
+          <div class="muted tiny" id="last-refresh">Refreshing…</div>
+        </div>
+
+        <form id="create-order-form" class="control-grid">
+          <label class="field">
+            <span>Buyer name</span>
+            <input name="buyerName" placeholder="Buyer name" value="Support Demo" required />
+          </label>
+          <label class="field">
+            <span>Event name</span>
+            <input name="eventName" placeholder="Event name" value="Arena Show" required />
+          </label>
+          <label class="field">
+            <span>Ticket count</span>
+            <input name="ticketCount" type="number" min="1" value="2" required />
+          </label>
+          <label class="field">
+            <span>Delivery method</span>
+            <select name="deliveryMethod">
+              <option value="digital">digital</option>
+              <option value="shipping">shipping</option>
+            </select>
+          </label>
+          <button type="submit">Create order</button>
+        </form>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Live order workflow</h2>
+                <p class="muted">Every order card shows next-best actions, recent history, and one-click ops controls.</p>
+              </div>
+              <label class="field filter-box">
+                <span>Filter state</span>
+                <select id="state-filter">
+                  <option value="all">All states</option>
+                  <option value="CREATED">Created</option>
+                  <option value="PAYMENT_CONFIRMED">Payment Confirmed</option>
+                  <option value="FULFILLMENT_IN_PROGRESS">Fulfillment In Progress</option>
+                  <option value="DIGITAL_DELIVERED">Digital Delivered</option>
+                  <option value="SHIPPED">Shipped</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="REFUND_REQUESTED">Refund Requested</option>
+                  <option value="REFUNDED">Refunded</option>
+                  <option value="REPLACEMENT_REQUESTED">Replacement Requested</option>
+                  <option value="REPLACEMENT_FULFILLED">Replacement Fulfilled</option>
+                </select>
+              </label>
+            </div>
+            <div id="orders-body" class="order-list"></div>
+          </div>
+        </div>
+
+        <aside class="stack">
+          <div class="panel">
+            <h2>Ops alerts</h2>
+            <div id="alerts" class="empty-state">No active alerts.</div>
+          </div>
+
+          <div class="panel">
+            <h2>Dead-letter tasks</h2>
+            <div id="failed-jobs" class="empty-state">No failed jobs.</div>
+          </div>
+
+          <div class="panel">
+            <h2>Observability</h2>
+            <div id="system-health" class="observability-list"></div>
+            <div class="endpoint-list">
+              <code>GET /api/metrics</code>
+              <code>GET /api/metrics/prometheus</code>
+              <code>GET /api/ops/dead-letters</code>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <script>
+      const metricsEl = document.getElementById('metrics');
+      const ordersBody = document.getElementById('orders-body');
+      const alertsEl = document.getElementById('alerts');
+      const failedJobsEl = document.getElementById('failed-jobs');
+      const createOrderForm = document.getElementById('create-order-form');
+      const stateFilter = document.getElementById('state-filter');
+      const systemHealthEl = document.getElementById('system-health');
+      const lastRefreshEl = document.getElementById('last-refresh');
+      const signalGridEl = document.getElementById('signal-grid');
+      const refreshButton = document.getElementById('refresh-btn');
+
+      let cachedOrders = [];
+      let cachedMetrics = null;
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatState(state) {
+        return String(state || '')
+          .toLowerCase()
+          .split('_')
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ');
+      }
+
+      function stateClassName(state) {
+        return `state-${String(state || '').toLowerCase()}`;
+      }
+
+      function formatCurrency(value) {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0
+        }).format(Number(value || 0));
+      }
+
+      function formatRelativeTime(timestamp) {
+        if (!timestamp) {
+          return 'just now';
+        }
+
+        const diffMs = Math.max(0, Date.now() - new Date(timestamp).getTime());
+        const diffSeconds = Math.floor(diffMs / 1000);
+
+        if (diffSeconds < 60) return `${diffSeconds}s ago`;
+        if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)}m ago`;
+        return `${Math.floor(diffSeconds / 3600)}h ago`;
+      }
+
+      async function request(url, options = {}) {
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Idempotency-Key': crypto.randomUUID(),
+            ...(options.headers || {})
+          },
+          ...options
+        });
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ error: 'Request failed' }));
+          throw new Error(error.error || 'Request failed');
+        }
+
+        return response.json();
+      }
+
+      async function loadDashboard() {
+        try {
+          const [metrics, orderResponse, failedResponse, alertResponse] = await Promise.all([
+            request('/api/metrics', { headers: {} }),
+            request('/api/orders', { headers: {} }),
+            request('/api/ops/failed-jobs', { headers: {} }),
+            request('/api/ops/alerts', { headers: {} })
+          ]);
+
+          cachedMetrics = metrics;
+          cachedOrders = orderResponse.orders || [];
+
+          renderMetrics(metrics);
+          renderOrders(cachedOrders);
+          renderAlerts(alertResponse.alerts || []);
+          renderFailedJobs(failedResponse.failedJobs || []);
+          renderSystemHealth(metrics, alertResponse.alerts || []);
+
+          const now = new Date();
+          lastRefreshEl.textContent = `Last refreshed ${now.toLocaleTimeString()}`;
+          signalGridEl.innerHTML = `
+            <div class="signal-tile">
+              <span class="muted tiny">Refresh status</span>
+              <strong>Healthy</strong>
+            </div>
+            <div class="signal-tile">
+              <span class="muted tiny">Last sync</span>
+              <strong>${now.toLocaleTimeString()}</strong>
+            </div>
+          `;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Dashboard refresh failed';
+          alertsEl.innerHTML = `<div class="alert-card alert-critical"><strong>Refresh failed</strong><br /><span class="muted tiny">${escapeHtml(message)}</span></div>`;
+          signalGridEl.innerHTML = `
+            <div class="signal-tile">
+              <span class="muted tiny">Refresh status</span>
+              <strong>Attention needed</strong>
+            </div>
+            <div class="signal-tile">
+              <span class="muted tiny">Last error</span>
+              <strong>${escapeHtml(message)}</strong>
+            </div>
+          `;
+        }
+      }
+
+      function renderMetrics(metrics) {
+        const cards = [
+          { icon: '🎯', label: 'Active orders', value: metrics.activeOrders, note: 'non-terminal workflows' },
+          { icon: '📬', label: 'Queue depth', value: metrics.queueDepth, note: 'pending background jobs' },
+          { icon: '🧨', label: 'Dead letters', value: metrics.deadLetterDepth, note: 'manual intervention needed' },
+          { icon: '🚨', label: 'Open alerts', value: metrics.alertCount, note: 'live operational warnings' },
+          { icon: '⚡', label: 'Avg latency', value: `${metrics.avgProcessingMs} ms`, note: 'mean processing time' },
+          { icon: '📈', label: 'P95 latency', value: `${metrics.p95ProcessingMs} ms`, note: `${metrics.throughputPerMinute} jobs/min` }
+        ];
+
+        metricsEl.innerHTML = cards.map((card) => `
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">${escapeHtml(card.label)}</span>
+              <span class="metric-icon">${card.icon}</span>
+            </div>
+            <div class="metric-value">${escapeHtml(card.value)}</div>
+            <div class="metric-note">${escapeHtml(card.note)}</div>
+          </div>
+        `).join('');
+      }
+
+      function actionButton(label, className, onClick) {
+        return `<button class="${className || ''}" onclick="${onClick}">${escapeHtml(label)}</button>`;
+      }
+
+      function renderOrders(orders) {
+        const selectedState = stateFilter.value;
+        const visibleOrders = selectedState === 'all'
+          ? orders
+          : orders.filter((order) => order.state === selectedState);
+
+        if (!visibleOrders.length) {
+          ordersBody.innerHTML = '<div class="empty-state">No orders match the current filter.</div>';
+          return;
+        }
+
+        ordersBody.innerHTML = visibleOrders.map((order) => {
+          const actions = [];
+          if (order.state === 'CREATED') {
+            actions.push(actionButton('Confirm payment', '', `runAction('${order.id}', 'payment-confirmed')`));
+          }
+          if (order.state === 'SHIPPED') {
+            actions.push(actionButton('Mark delivered', 'secondary', `runAction('${order.id}', 'delivery-update', { status: 'delivered' })`));
+          }
+          if (!['REFUNDED', 'REFUND_REQUESTED'].includes(order.state)) {
+            actions.push(actionButton('Refund', 'danger', `runAction('${order.id}', 'refund-request', { reason: 'Support initiated refund.' })`));
+          }
+          if (['DIGITAL_DELIVERED', 'DELIVERED', 'SHIPPED'].includes(order.state)) {
+            actions.push(actionButton('Replacement', 'warn', `runAction('${order.id}', 'replacement-request', { reason: 'Buyer needs replacement fulfillment.' })`));
+          }
+
+          const latestEvent = order.history?.[0];
+          const actionList = (order.nextBestActions || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+
+          return `
+            <article class="order-card">
+              <div class="order-head">
+                <div>
+                  <div class="order-title">${escapeHtml(order.eventName)}</div>
+                  <div class="order-meta">${escapeHtml(order.buyerName)} • ${escapeHtml(order.ticketCount)} tickets • ${formatCurrency(order.totalPrice)}</div>
+                </div>
+                <div class="pill-row">
+                  <span class="state-pill ${stateClassName(order.state)}">${escapeHtml(formatState(order.state))}</span>
+                  <span class="delivery-pill">${escapeHtml(order.deliveryMethod)}</span>
+                </div>
+              </div>
+
+              <div class="order-body">
+                <div class="subcard">
+                  <div class="section-label">Next best actions</div>
+                  <ul class="action-list">${actionList || '<li>Review manually</li>'}</ul>
+                </div>
+                <div class="subcard">
+                  <div class="section-label">Latest event</div>
+                  <div class="timeline-note">
+                    ${latestEvent ? escapeHtml(latestEvent.message) : 'No recent activity yet.'}
+                  </div>
+                  <div class="muted tiny" style="margin-top: 8px;">${latestEvent ? `${escapeHtml(latestEvent.actor)} • ${formatRelativeTime(latestEvent.at)}` : ''}</div>
+                </div>
+              </div>
+
+              <div class="order-footer">
+                <div class="muted tiny">
+                  Updated ${formatRelativeTime(order.updatedAt)}${order.lastLatencyMs ? ` • last job ${order.lastLatencyMs} ms` : ''}
+                </div>
+                <div class="actions">${actions.join(' ') || '<span class="muted tiny">No action needed</span>'}</div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function renderAlerts(alerts) {
+        if (!alerts.length) {
+          alertsEl.innerHTML = '<div class="empty-state">No active alerts. The operation queue looks healthy.</div>';
+          return;
+        }
+
+        alertsEl.innerHTML = `<div class="alert-list">${alerts.map((alert) => `
+          <div class="alert-card alert-${escapeHtml(alert.severity)}">
+            <strong>${escapeHtml(alert.summary)}</strong><br />
+            <span class="muted tiny">${escapeHtml(alert.detail)}</span>
+          </div>
+        `).join('')}</div>`;
+      }
+
+      function renderFailedJobs(failedJobs) {
+        if (!failedJobs.length) {
+          failedJobsEl.innerHTML = '<div class="empty-state">No failed jobs are currently parked in the dead-letter queue.</div>';
+          return;
+        }
+
+        failedJobsEl.innerHTML = `
+          <div class="actions" style="margin-bottom: 10px;">
+            <button class="secondary" onclick="clearDeadLetters()">Clear DLQ</button>
+          </div>
+          ${failedJobs.map((job) => `
+            <div class="alert-card alert-warning">
+              <strong>${escapeHtml(job.type)} job for ${escapeHtml(job.orderId)}</strong><br />
+              <span class="muted tiny">${escapeHtml(job.lastError || 'Unknown error')}</span><br />
+              <div class="actions" style="margin-top: 10px;">
+                <button class="secondary" onclick="retryJob('${job.id}')">Retry job</button>
+              </div>
+            </div>
+          `).join('')}
+        `;
+      }
+
+      function renderSystemHealth(metrics, alerts) {
+        const rows = [
+          ['Persistence', metrics.persistenceEnabled ? 'Enabled' : 'Disabled'],
+          ['Snapshot path', metrics.persistedStatePath || 'Not configured'],
+          ['Throughput', `${metrics.throughputPerMinute} jobs/min`],
+          ['Alert posture', alerts.length ? `${alerts.length} active` : 'Healthy']
+        ];
+
+        systemHealthEl.innerHTML = rows.map(([label, value]) => `
+          <div class="observability-item">
+            <span class="muted tiny">${escapeHtml(label)}</span>
+            <span>${escapeHtml(value)}</span>
+          </div>
+        `).join('');
+      }
+
+      async function retryJob(jobId) {
+        try {
+          await request(`/api/ops/jobs/${jobId}/retry`, { method: 'POST', body: '{}' });
+          await loadDashboard();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      async function clearDeadLetters() {
+        try {
+          await request('/api/ops/dead-letters', { method: 'DELETE' });
+          await loadDashboard();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      async function runAction(orderId, action, payload = {}) {
+        try {
+          await request(`/api/orders/${orderId}/${action}`, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          await loadDashboard();
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+
+      createOrderForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(createOrderForm);
+        const payload = Object.fromEntries(formData.entries());
+        payload.ticketCount = Number(payload.ticketCount);
+
+        try {
+          await request('/api/orders', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          createOrderForm.reset();
+          await loadDashboard();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      stateFilter.addEventListener('change', () => renderOrders(cachedOrders));
+      refreshButton.addEventListener('click', () => { void loadDashboard(); });
+
+      window.runAction = runAction;
+      window.retryJob = retryJob;
+      window.clearDeadLetters = clearDeadLetters;
+
+      void loadDashboard();
+      setInterval(loadDashboard, 4000);
+    </script>
+  </body>
+</html>
