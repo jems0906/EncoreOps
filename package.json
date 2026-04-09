@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "clean": "node -e \"const fs=require('node:fs'); ['dist','data/simulator-state.json'].forEach((p)=>fs.rmSync(p,{ recursive:true, force:true }));\"",

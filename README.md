@@ -66,6 +66,27 @@ The regression tests cover:
 - payment to delivery workflow
 - refund workflow and assistant guidance
 
+## Deploy on Render
+
+This repo includes `render.yaml` for one-click deployment.
+
+### Render settings
+
+- **Runtime:** Node
+- **Build command:** `npm install && npm run build`
+- **Start command:** `npm start`
+- **Health check path:** `/api/health`
+
+### Quick deploy
+
+Open:
+
+```text
+https://render.com/deploy?repo=https://github.com/jems0906/EncoreOps
+```
+
+> `SIMULATOR_PERSISTENCE` is set to `0` for Render because the default web-service filesystem is ephemeral.
+
 ## Docker
 
 ```bash

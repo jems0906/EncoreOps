@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: encoreops
+    runtime: node
+    plan: free
+    autoDeployTrigger: commit
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: SIMULATED_FAILURE_RATE
+        value: "0.15"
+      - key: SIMULATOR_PERSISTENCE
+        value: "0"
